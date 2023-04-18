@@ -102,11 +102,11 @@ export default component$(() => {
       const controller = new AbortController();
       cleanup(() => controller.abort());
 
-      if (!store.debounce) {
-        return [];
-      }
+      // if (!store.debounce) {
+      //   return [];
+      // }
       // Fetch the data and return the promises.
-      const res = getRepositories(store.debounce, controller);
+      const res = getRepositories(store.debounce!, controller);
       console.log(res);
       return res;
     }
@@ -118,7 +118,7 @@ export default component$(() => {
 
   return (
     <>
-      <div class="flex flex-auto flex-col bg-white rounded-lg">
+      <div class="flex flex-auto flex-col rounded-lg">
         {/* Search */}
         <div class="flex shadow-sm mb-2">
           <input
@@ -146,11 +146,11 @@ export default component$(() => {
           </button>
         </div>
         {/* Tabs */}
-        <div class="px-4">
+        <div class="px-4 py-4 bg-white rounded-lg">
           <div class="border-b border-gray-200">
             <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500">
               <li class="mr-2">
-                <div class="leading-5 inline-flex items-center px-4 pb-2 border-b-2 border-transparent rounded-t-lg text-lg text-black border-gray-950 group">
+                <div class="leading-5 inline-flex items-center px-4 pb-2 border-b-2 rounded-t-lg text-lg text-black border-gray-950 group">
                   <span class="mr-2">All</span>
                   <Tag>
                     <div q:slot="children">{badCustomerNumbers}</div>
@@ -162,7 +162,6 @@ export default component$(() => {
         </div>
 
         <div>
-          <AnimateButton />
           <Resource
             value={badCustomerResource}
             onPending={() => <>Loading...</>}
@@ -170,13 +169,28 @@ export default component$(() => {
             onResolved={(badCustomers) => (
               <div class="mt-2">
                 {badCustomers.map((badCustomer) => (
-                  <div class="cursor-pointer group flex items-center w-full px-5 py-6 transition-colors duration-200 hover:bg-gray-100 focus:outline-none active:bg-gray-500">
-                    <i class="contents text-gray-700 fa-sharp fa-solid fa-circle-exclamation fa-2xl w-8 h-8 group-active:text-gray-200"></i>
-                    <div class="ml-3 text-left">
-                      <span class="text-base font-semibold group-active:text-gray-200">
+                  <div class="cursor-pointer group grid grid-cols-12 grid-rows-6 gap-1 w-full h-60 px-5 py-4 mb-2 transition-colors duration-200 bg-white rounded-md hover:bg-gray-100 focus:outline-none active:bg-gray-500">
+                    {/* First row */}
+                    <div class="row-span-2 col-span-2 flex items-center justify-start">
+                      {/* <i class="text-gray-700 fa-solid fa-circle-exclamation fa-2xl group-active:text-gray-200"></i> */}
+                      <i class="fa-regular fa-circle-xmark fa-2xl leading-8"></i>
+                    </div>
+
+                    <div class="row-span-2 col-span-6 text-left flex items-center justify-start">
+                      <span class="text-xl font-semibold group-active:text-gray-200">
                         {badCustomer.phoneNumber || badCustomer.email}
                       </span>
-                      <div class="flex text-sm items-end">
+                    </div>
+
+                    <div class="row-span-2 col-span-4 text-left flex items-center justify-end">
+                      <span class="text-sm font-normal truncate group-active:text-gray-200">
+                        {badCustomer.updatedAt}
+                      </span>
+                    </div>
+
+                    {/* Second row */}
+                    <div class="row-span-1 col-span-12">
+                      <div class="flex items-center justify-end text-sm">
                         <>
                           {badCustomer.tag.map((tag) => (
                             <Tag size="sm">
@@ -184,9 +198,28 @@ export default component$(() => {
                             </Tag>
                           ))}
                         </>
-                        <span class="group-active:text-gray-200">
+                      </div>
+                    </div>
+
+                    {/* Third row */}
+                    <div class="row-span-2 col-span-12">
+                      <div class="flex flex-col flex-grow h-full">
+                        <div class="flex flex-grow items-center justify-star font-normal text-sm line-clamp-3 leading-4 h-8">
+                          comment for this dude comment for this comment for
+                          this dude comment for thiscomment for this dude
+                          comment for this comment for this dude comment for
+                          this comment for this dude comment for thiscomment for
+                          this dude comment for this
+                        </div>
+                        <div class="truncate flex items-end justify-end text-xs font-light">
                           {badCustomer.updatedAt}
-                        </span>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Fourth row*/}
+                    <div class="row-span-1 col-span-12">
+                      <div class="flex flex-col flex-grow h-full items-center justify-center">
+                        Watch more
                       </div>
                     </div>
                   </div>
