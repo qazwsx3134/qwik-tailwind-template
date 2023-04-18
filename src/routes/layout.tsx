@@ -56,7 +56,7 @@ export default component$(() => {
 
   return (
     <>
-      <main class="flex-1 flex flex-col min-h-screen bg-red-300">
+      <main class="">
         {context.modal.cart && (
           <CartModal
             onClose$={() => {
