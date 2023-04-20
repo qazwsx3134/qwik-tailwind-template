@@ -1176,7 +1176,7 @@
         "q-aabedc31.js"
       ],
       "origins": [
-        "src/assets/background/fujisan-tommy-silver-unsplash.webp",
+        "public/images/fujisan-tommy-silver-unsplash.webp",
         "src/entry_rain.js",
         "src/routes/demo/rain/index.css?used&inline",
         "src/s_5nbohcufdsy.js",
