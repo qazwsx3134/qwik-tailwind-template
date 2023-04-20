@@ -5,22 +5,11 @@ import {
 } from "@builder.io/qwik";
 
 import {
-  Scene,
-  PerspectiveCamera,
-  WebGLRenderer,
-  TorusGeometry,
   SphereGeometry,
-  MeshBasicMaterial,
   Mesh,
   MeshStandardMaterial,
-  PointLight,
-  AmbientLight,
-  PointLightHelper,
-  GridHelper,
-  MathUtils,
   TextureLoader,
-  AxesHelper,
-  Texture,
+  type Texture,
 } from "three";
 
 import { useStore } from "@builder.io/qwik";

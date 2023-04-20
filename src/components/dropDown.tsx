@@ -1,14 +1,12 @@
 import {
   $,
-  QRL,
-  QwikMouseEvent,
+  type QRL,
   component$,
   useSignal,
 } from "@builder.io/qwik";
 import { Arrow } from "./starter/icons/arrow";
 
-import { isServer } from "@builder.io/qwik/build";
-import { MenuState } from "./menu";
+import type { MenuState } from "./menu";
 
 interface Props {
   dropDownState: MenuState;
@@ -61,8 +59,7 @@ export default component$<Props>((props) => {
                     key={item}
                     class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     onClick$={() => {
-                      props.selectedOnChange(item);
-                      console.log("selectItem", item);
+                      // props.selectedOnChange(item);
                       isExpanded.value = false;
                     }}
                     role="menuitem"

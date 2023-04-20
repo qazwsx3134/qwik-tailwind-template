@@ -5,22 +5,9 @@ import {
 } from "@builder.io/qwik";
 
 import {
-  Scene,
-  PerspectiveCamera,
-  WebGLRenderer,
   TorusGeometry,
-  SphereGeometry,
-  MeshBasicMaterial,
   Mesh,
   MeshStandardMaterial,
-  PointLight,
-  AmbientLight,
-  PointLightHelper,
-  GridHelper,
-  MathUtils,
-  TextureLoader,
-  AxesHelper,
-  Texture,
 } from "three";
 
 import { useStore } from "@builder.io/qwik";
@@ -29,14 +16,6 @@ import { useStore } from "@builder.io/qwik";
  */
 
 const useTorusMesh = () => {
-  const torusTextureStore = useStore<{
-    torus: NoSerialize<Texture>;
-    torusNormal: NoSerialize<Texture>;
-  }>({
-    torus: undefined,
-    torusNormal: undefined,
-  });
-
   const torusStore = useStore<{
     geometry: NoSerialize<TorusGeometry>;
     material: NoSerialize<MeshStandardMaterial>;

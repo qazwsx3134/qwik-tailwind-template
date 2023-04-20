@@ -1,14 +1,11 @@
 import {
   component$,
-  useComputed$,
   useContext,
   useSignal,
 } from "@builder.io/qwik";
-import { Hamburger } from "./starter/icons/hamburger";
-import { QwikLogo } from "./starter/icons/qwik";
-import AnimateButton from "./button/glowOnHoverButton";
+
 import { appContext } from "~/routes/layout";
-import CartModal from "./modal/cartModal";
+
 
 export default component$(() => {
   const scrollDown = useSignal(false);

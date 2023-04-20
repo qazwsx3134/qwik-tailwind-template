@@ -6,7 +6,6 @@ import {
   useVisibleTask$,
   useOnDocument,
   $,
-  useSignal,
   useOnWindow,
 } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
@@ -18,7 +17,6 @@ import {
   WebGLRenderer,
   TorusGeometry,
   SphereGeometry,
-  MeshBasicMaterial,
   Mesh,
   MeshStandardMaterial,
   PointLight,
@@ -28,13 +26,12 @@ import {
   MathUtils,
   TextureLoader,
   AxesHelper,
-  Texture,
+  type Texture,
 } from "three";
 // @ts-ignore
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { useStore } from "@builder.io/qwik";
 
-import { GUI } from "dat.gui";
 import useGUI from "~/components/three/gui/gui";
 
 export default component$(() => {
@@ -54,7 +51,6 @@ export default component$(() => {
   };
 
   const { guiStore } = useGUI();
-  const loadDone = useSignal(false);
 
   const sceneStore = useStore<{ instance: NoSerialize<Scene> }>({
     instance: undefined,
@@ -115,16 +111,6 @@ export default component$(() => {
     toruses: NoSerialize<Mesh>[];
   }>({
     toruses: [undefined],
-  });
-
-  const meshStore = useStore<{
-    star: NoSerialize<Mesh>;
-  }>({
-    star: undefined,
-  });
-
-  const renderStore = useStore<{ instance: NoSerialize<WebGLRenderer> }>({
-    instance: undefined,
   });
 
   const moveCamera = $(() => {

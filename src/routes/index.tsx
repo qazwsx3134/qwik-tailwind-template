@@ -6,28 +6,21 @@ import {
   useVisibleTask$,
   useOnDocument,
   $,
-  useSignal,
 } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import styles from "./index.css?inline";
 
 import {
-  Scene,
-  PerspectiveCamera,
   WebGLRenderer,
-  TorusGeometry,
   SphereGeometry,
-  MeshBasicMaterial,
   Mesh,
   MeshStandardMaterial,
-  PointLight,
-  AmbientLight,
   PointLightHelper,
   GridHelper,
   MathUtils,
   TextureLoader,
   AxesHelper,
-  Texture,
+  type Texture,
 } from "three";
 // @ts-ignore
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -38,7 +31,6 @@ import useMoonMesh from "~/components/three/mesh/moon";
 import useScene from "~/components/three/scene/scene";
 import usePerspectiveCamera from "~/components/three/camera/perspectiveCamera";
 import usePointLight from "~/components/three/light/pointLight";
-import useAmbientLight from "~/components/three/light/ambientLight";
 
 export default component$(() => {
   useStylesScoped$(styles);
@@ -50,9 +42,7 @@ export default component$(() => {
    * const camera = new THREE.PerspectiveCamera(75 // fov 垂直視野角度, window.innerWidth / window.innerHeight // aspect 長寬比, 0.1 // near 近端面, 1000 // far 遠端面);
    */
 
-  const loadDone = useSignal(false);
   const { pointLightStore } = usePointLight();
-  const { ambientLightStore } = useAmbientLight();
   const { sceneStore } = useScene();
   const { cameraStore } = usePerspectiveCamera();
   const { moonStore } = useMoonMesh();
@@ -77,16 +67,6 @@ export default component$(() => {
     space: NoSerialize<Texture>;
   }>({
     space: undefined,
-  });
-
-  const meshStore = useStore<{
-    star: NoSerialize<Mesh>;
-  }>({
-    star: undefined,
-  });
-
-  const renderStore = useStore<{ instance: NoSerialize<WebGLRenderer> }>({
-    instance: undefined,
   });
 
   const moveCamera = $(() => {

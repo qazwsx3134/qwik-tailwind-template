@@ -1,5 +1,4 @@
 import {
-  $,
   component$,
   Slot,
   useStore,
@@ -7,7 +6,6 @@ import {
 } from "@builder.io/qwik";
 
 import {
-  useContext,
   useContextProvider,
   createContextId,
 } from "@builder.io/qwik";

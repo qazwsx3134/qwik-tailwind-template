@@ -1,9 +1,7 @@
-import { QRL, component$, useTask$, useVisibleTask$ } from "@builder.io/qwik";
-import { isServer } from "@builder.io/qwik/build";
-import { Arrow } from "./starter/icons/arrow";
-import {} from "~/routes/layout";
+import { QRL, component$ } from "@builder.io/qwik";
+
 import DropDown from "./dropDown";
-import Test from "./test";
+
 
 export enum MenuState {
   BadCustomer = "bad customer",

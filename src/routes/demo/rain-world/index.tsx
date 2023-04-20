@@ -6,7 +6,6 @@ import {
   useVisibleTask$,
   useOnDocument,
   $,
-  useSignal,
   useOnWindow,
 } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
@@ -18,7 +17,6 @@ import {
   WebGLRenderer,
   TorusGeometry,
   SphereGeometry,
-  MeshBasicMaterial,
   Mesh,
   MeshStandardMaterial,
   PointLight,
@@ -28,16 +26,13 @@ import {
   MathUtils,
   TextureLoader,
   AxesHelper,
-  Texture,
+  type Texture,
   DirectionalLight,
   DirectionalLightHelper,
   PlaneGeometry,
   MeshLambertMaterial,
-  LatheGeometry,
-  Vector3,
   BufferGeometry,
   Float32BufferAttribute,
-  BufferAttribute,
   PointsMaterial,
   Points,
   FogExp2,
@@ -46,7 +41,6 @@ import {
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { useStore } from "@builder.io/qwik";
 
-import { GUI } from "dat.gui";
 import useGUI from "~/components/three/gui/gui";
 
 /**
@@ -74,7 +68,6 @@ export default component$(() => {
   };
 
   const { guiStore } = useGUI();
-  const loadDone = useSignal(false);
 
   const sceneStore = useStore<{ instance: NoSerialize<Scene> }>({
     instance: undefined,
@@ -82,17 +75,6 @@ export default component$(() => {
 
   const cameraStore = useStore<{ instance: NoSerialize<PerspectiveCamera> }>({
     instance: undefined,
-  });
-
-  const pointLightStore = useStore<{
-    pointLight: NoSerialize<PointLight>;
-  }>({
-    pointLight: undefined,
-  });
-  const ambientLightStore = useStore<{
-    ambientLight: NoSerialize<AmbientLight>;
-  }>({
-    ambientLight: undefined,
   });
 
   const controlStore = useStore<{
@@ -141,10 +123,6 @@ export default component$(() => {
     clouds: NoSerialize<Mesh>[];
   }>({
     clouds: [undefined],
-  });
-
-  const renderStore = useStore<{ instance: NoSerialize<WebGLRenderer> }>({
-    instance: undefined,
   });
 
   const moveCamera = $(() => {
@@ -352,7 +330,6 @@ export default component$(() => {
 
     // Ambient light illuminates all objects in the scene equally.
     const ambientLight = new AmbientLight(0x555555);
-    ambientLightStore.ambientLight = noSerialize(ambientLight);
 
     // Directional light is a light source that acts like the sun, that is, it is infinitely far away and the rays produced are all parallel.
     const directionalLight = new DirectionalLight(0xffeedd, 1);
@@ -379,8 +356,7 @@ export default component$(() => {
     controlStore.instance = noSerialize(controls);
 
     const rainVelocity = () => {
-      let x, y, z, index;
-      x = y = z = index = 0;
+
       //@ts-ignore
       const positions = rain.geometry.attributes.position.array;
       //@ts-ignore
@@ -441,25 +417,6 @@ export default component$(() => {
       renderer.render(scene, camera);
     };
     animate();
-  });
-  const addTorus = $(() => {
-    const [w, x, y, z] = Array(3)
-      .fill(null)
-      .map(() => MathUtils.randFloatSpread(100));
-    if (sceneStore.instance && torusStore.toruses.length > 0) {
-      // Torus
-      const geoTorus = new TorusGeometry(w, x, y, z);
-
-      const matTorus = new MeshStandardMaterial({
-        color: 0xff6347,
-      });
-      // Torus
-      const torus = new Mesh(geoTorus, matTorus);
-
-      torus.position.set(x, y, z);
-      torusStore.toruses.push(noSerialize(torus));
-      sceneStore.instance.add(torus);
-    }
   });
 
   return (

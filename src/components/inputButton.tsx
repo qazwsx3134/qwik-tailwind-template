@@ -1,10 +1,7 @@
 import {
   component$,
   type PropFunction,
-  Resource,
-  useResource$,
   useSignal,
-  useStore,
   useTask$,
 } from "@builder.io/qwik";
 
@@ -17,7 +14,10 @@ export default component$<Props>((props) => {
   useTask$(async ({ track }) => {
     track(() => input.value);
     let ok = false;
-    while (!ok) {}
+    while (!ok) {
+      await input.value;
+      ok = true;
+    }
   });
 
   return (
