@@ -1,1 +1,0 @@
-import{d as s,T as n}from"./q-def901ce.js";import{j as f}from"./q-def901ce.js";import{c}from"./q-86d13d31.js";const a=()=>{const[o]=s(),e=new c;o.instance=n(e),console.log("scene"),console.log(performance.now())};export{f as _hW,a as s_ScZ3KjDhHIo};
