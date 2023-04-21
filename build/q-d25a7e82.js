@@ -1,1 +1,0 @@
-import{Z as t,B as e,_ as i}from"./q-e67b619b.js";const s=t(e(()=>i(()=>import("./q-b273da13.js"),["build/q-b273da13.js","build/q-e67b619b.js","build/q-9b0babb4.js","build/q-921de161.js","build/q-86d13d31.js"]),"s_gvyyswKs67c")),_={title:"奧客資料庫",meta:[{name:"description",content:"Qwik site description"}]};export{s as default,_ as head};
