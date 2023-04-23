@@ -9,7 +9,7 @@ import {
   useSignal,
   useOnWindow,
 } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
+import { type DocumentHead, useLocation } from "@builder.io/qwik-city";
 import styles from "./index.css?inline";
 
 import {
@@ -35,14 +35,17 @@ import { useStore } from "@builder.io/qwik";
 
 import useGUI from "~/components/three/gui/gui";
 
-import fujiImage from "~/assets/background/fujisan-tommy-silver-unsplash.webp";
+// import fujiImage from "~/assets/background/fujisan-tommy-silver-unsplash.webp";
+// import fujiImage from '../../../../public/images/fujisan-tommy-silver-unsplash.webp';
+
 
 // 參考 https://www.rocksdanister.com/lively-webpage/
 // 看他的 script.js
 // 還有相對應的frag
 export default component$(() => {
+  const loc = useLocation();
   const containerRef = useSignal<HTMLDivElement>();
-  const isDebug = useSignal(false);
+  const isDebug = useSignal(loc.query.get("debug") === "true");
   useStylesScoped$(styles);
   /**
    * In threejs, we need to create a scene, a camera, and a renderer
@@ -75,11 +78,11 @@ export default component$(() => {
   const gui = {
     fps: 60,
     blur: true,
-    intensity: 0.35,
-    speed: 0.35,
+    intensity: 0.45,
+    speed: 0.3,
     brightness: 0.75,
-    normal: 0.55,
-    zoom: 2.8,
+    normal: 0.85,
+    zoom: 1.5,
     panning: false,
     lighting: false
   };
@@ -87,6 +90,9 @@ export default component$(() => {
   const { guiStore } = useGUI();
 
   const prevScrollPos = useSignal(0);
+  const audioStore = useStore<{ instance: NoSerialize<HTMLAudioElement> }>({
+    instance: undefined,
+  });
   const sceneStore = useStore<{ instance: NoSerialize<Scene> }>({
     instance: undefined,
   });
@@ -96,16 +102,6 @@ export default component$(() => {
 
   const cameraStore = useStore<{ instance: NoSerialize<OrthographicCamera> }>({
     instance: undefined,
-  });
-
-  const shaderStore = useStore<{
-    instance: {
-      u_speed: { value: number; type: string };
-    }
-  }>({
-    instance: {
-      u_speed: { value: 0.25, type: "f" },
-    },
   });
 
   const rendererStore = useStore<{
@@ -129,8 +125,7 @@ export default component$(() => {
 
     if (containerRef.value) {
       containerRef.value.style.transform = `translateX(${x}px) translateY(${y}px) scale(1.2)`;
-    }
-    
+    } 
   })
   useOnDocument("mousemove", moveMouseParallax);
 
@@ -142,6 +137,20 @@ export default component$(() => {
   });
 
   useOnWindow("resize", windowResize);
+
+  const clickEvent = $(() => {
+    if (audioStore.instance) {
+      audioStore.instance.play();
+    }
+  });
+  useOnDocument("click", clickEvent);
+
+  const touchStartEvent = $(() => {
+    if (audioStore.instance) {
+      audioStore.instance.play();
+    }
+  });
+  useOnDocument("touchstart", touchStartEvent);
 
   useVisibleTask$(async() => {
     const clock = new Clock();
@@ -155,15 +164,14 @@ export default component$(() => {
       u_intensity: { value: 0.4, type: "f" },
       u_speed: { value: 0.25, type: "f" },
       u_brightness: { value: 0.75, type: "f" },
-      u_normal: { value: 0.5, type: "f" },
-      u_zoom: { value: 2.61, type: "f" },
+      u_normal: { value: 0.8, type: "f" },
+      u_zoom: { value: 1.4, type: "f" },
       u_panning: { value: false, type: "b" },
-      u_post_processing: { value: true, type: "b" },
+      u_post_processing: { value: false, type: "b" },
       u_lightning: { value: false, type: "b" },
       u_resolution: { value: new Vector2(window.innerWidth, window.innerHeight), type: "v2" },
       u_tex0_resolution: { value: new Vector2(window.innerWidth, window.innerHeight), type: "v2" },
     }
-    shaderStore.instance.u_speed = rainShaderUniform.u_speed;
 
     const scene = new Scene();
     sceneStore.instance = noSerialize(scene);
@@ -176,21 +184,21 @@ export default component$(() => {
     /**
      * Textures
      */
-    const background = await new TextureLoader().loadAsync(fujiImage);
+    const background = await new TextureLoader().loadAsync("../../images/fujisan-tommy-silver-unsplash.webp");
     backgroundStore.instance = noSerialize(background);
 
     /**
      * Object
      */
 
-    const transparentWindowGeo = new PlaneGeometry(2,2,1,1)
+    const transparentWindowGeo = new PlaneGeometry(50,50,1,1)
     const material = new ShaderMaterial({
       vertexShader: rainVertShader,
       fragmentShader: rainFragShader,
       uniforms: rainShaderUniform,
     })
     material.uniforms.u_tex0.value = background;
-    material.uniforms.u_tex0_resolution.value = new Vector2(1920, 1080)
+    material.uniforms.u_tex0_resolution.value = new Vector2(background.image.width, background.image.height)
     const transparentWindow = new Mesh(transparentWindowGeo,material)
 
     
@@ -198,16 +206,14 @@ export default component$(() => {
 
     const renderer = new WebGLRenderer({
       canvas: document.querySelector("#bg") as HTMLCanvasElement,
-      antialias: false
+      antialias: true,
+      alpha: true,
     });
     rendererStore.instance = noSerialize(renderer);
 
-    renderer.setPixelRatio(window.devicePixelRatio);
+    // Set to one for preventing mobile device to use high dpi
+    renderer.setPixelRatio(1);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    material.uniforms.u_tex0_resolution.value = new Vector2(
-      window.innerWidth * defaultSetting.scale,
-      window.innerHeight * defaultSetting.scale
-    )
 
     /**
      * Init Camera
@@ -232,17 +238,17 @@ export default component$(() => {
     scene.fog = new FogExp2(0x1c1c2a, 0.002);
 
     scene.add(transparentWindow)
-
+    // const axeHelper = new AxesHelper(100);
+    // const gridHelper = new GridHelper(200, 50);
+    // scene.add(gridHelper, axeHelper);
     /**
      * Init Light
      */
-
     
-
     // const controls = new OrbitControls(camera, renderer.domElement);
     // controlStore.instance = noSerialize(controls);
 
-    if (isDebug.value &&guiStore.gui) {
+    if (isDebug.value && guiStore.gui) {
       guiStore.gui.show();
     } else {
       guiStore.gui?.hide();
@@ -278,6 +284,13 @@ export default component$(() => {
       renderer.render(scene, camera);
     };
     animate();
+
+    // Audio
+    const audio = await new Audio("../../audio/rain.mp3")
+    audio.loop = true;
+    audio.autoplay = true;
+    audioStore.instance = noSerialize(audio)
+    containerRef.value?.appendChild(audio)
   });
   
 

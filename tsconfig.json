@@ -19,7 +19,8 @@
     "types": ["node", "vite/client"],
     "paths": {
       "~/*": ["./src/*"],
-      "public/*": ["./public/*"]
+      "images/*": ["./public/images/*"],
+      "audio/*": ["./public/audio/*"],
     }
   },
   "files": ["./.eslintrc.cjs"],

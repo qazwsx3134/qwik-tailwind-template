@@ -22,8 +22,8 @@ uniform bool u_post_processing;
 uniform bool u_lightning;
 
 #define S(a, b, t) smoothstep(a, b, t)
-#define USE_POST_PROCESSING
-//#define CHEAP_NORMALS
+// #define USE_POST_PROCESSING
+// #define CHEAP_NORMALS
 
 vec3 N13(float p) {
     //  from DAVE HOSKINS
@@ -140,6 +140,8 @@ void main() {
     float t = T * .2 * u_speed;
 
     float rainAmount = u_intensity;
+    float maxBlur = mix(3., 6., rainAmount);
+    float minBlur = 1.;
 
     float zoom = u_panning ? -cos(T * .2) : 0.;
     uv *= (.7 + zoom * .3) * u_zoom;
@@ -150,38 +152,40 @@ void main() {
 
     vec2 c = Drops(uv, t, staticDrops, layer1, layer2);
     #ifdef CHEAP_NORMALS
-    vec2 n = vec2(dFdx(c.x), dFdy(c.x));// cheap normals (3x cheaper, but 2 times shittier ;))
+        vec2 n = vec2(dFdx(c.x), dFdy(c.x));// cheap normals (3x cheaper, but 2 times shittier ;))
     #else
-    vec2 e = vec2(.001, 0.) * u_normal;
-    float cx = Drops(uv + e, t, staticDrops, layer1, layer2).x;
-    float cy = Drops(uv + e.yx, t, staticDrops, layer1, layer2).x;
-    vec2 n = vec2(cx - c.x, cy - c.x);		// expensive normals
+        vec2 e = vec2(.001, 0.) * u_normal;
+        float cx = Drops(uv + e, t, staticDrops, layer1, layer2).x;
+        float cy = Drops(uv + e.yx, t, staticDrops, layer1, layer2).x;
+        vec2 n = vec2(cx - c.x, cy - c.x);		// expensive normals
     #endif
 
-    vec3 col = texture2D(u_tex0, UV + n).rgb;
+    float focus = mix(maxBlur-c.y, minBlur, S(.1, .2, c.x));
+    vec3 col = textureLod(u_tex0, UV + n,focus).rgb;
     vec4 texCoord = vec4(UV.x + n.x, UV.y + n.y, 0, 1.0 * 25. * 0.01 / 7.);
 
-    if(u_blur) {
-        float blur = 0.4 * 0.01;
-        int blurIterations = 16;
-        float a = N21(gl_FragCoord.xy) * 6.2831;
-        for(int m = 0; m < blurIterations; m++) {
-            vec2 offs = vec2(sin(a), cos(a)) * blur;
-            float d = fract(sin((float(m) + 1.) * 546.) * 5424.);
-            d = sqrt(d);
-            offs *= d;
-            col += texture2D(u_tex0, texCoord.xy + vec2(offs.x, offs.y)).xyz;
-            a++;
-        }
-        col /= float(blurIterations);
-    }
+    // if(u_blur) {
+    //     float blur = 0.4 * 0.01;
+    //     int blurIterations = 8;
+    //     float a = N21(gl_FragCoord.xy) * 6.2831;
+    //     for(int m = 0; m < blurIterations; m++) {
+    //         vec2 offs = vec2(sin(a), cos(a)) * blur;
+    //         float d = fract(sin((float(m) + 1.) * 546.) * 5424.);
+    //         d = sqrt(d);
+    //         offs *= d;
+    //         col += texture2D(u_tex0, texCoord.xy + vec2(offs.x, offs.y)).xyz;
+    //         a++;
+    //     }
+    //     col /= float(blurIterations);
+    // }
 
     t = (T + 3.) * .5;			// make time sync with first lightnoing
+    float fade = S(0., 10., T);							// fade in at the start
     if(u_post_processing) {
         //float colFade = sin(t * .2) * .5 + .5;
         col *= mix(vec3(1.), vec3(.8, .9, 1.3), 1.);	// subtle color shift
     }
-    float fade = S(0., 10., T);							// fade in at the start
+    
 
     if(u_lightning) {
         float lightning = sin(t * sin(t * 10.));				// lighting flicker

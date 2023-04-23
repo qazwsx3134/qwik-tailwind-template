@@ -11,6 +11,7 @@
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/static/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
+    "deploy:static": "cross-env NODE_ENV=static qwik build && gh-pages -d dist",
     "deploy": "echo 'Run \"npm run qwik add\" to install a server adapter'",
     "dev": "vite --mode ssr",
     "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
@@ -26,6 +27,7 @@
     "@builder.io/qwik-city": "~0.7.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/eslint": "8.21.3",
+    "@types/gsap": "^3.0.0",
     "@types/node": "^18.15.3",
     "@types/three": "^0.150.1",
     "@typescript-eslint/eslint-plugin": "5.56.0",
@@ -33,6 +35,8 @@
     "autoprefixer": "^10.4.13",
     "eslint": "8.36.0",
     "eslint-plugin-qwik": "0.24.0",
+    "gh-pages": "^5.0.0",
+    "gsap": "^3.11.5",
     "postcss": "^8.4.16",
     "prettier": "2.8.6",
     "tailwindcss": "^3.1.8",
@@ -44,6 +48,7 @@
   },
   "dependencies": {
     "@types/dat.gui": "^0.7.9",
+    "cross-env": "^7.0.3",
     "dat.gui": "^0.7.9"
   }
 }
