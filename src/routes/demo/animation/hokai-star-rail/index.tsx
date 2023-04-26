@@ -9,6 +9,7 @@ import {
   useOnWindow,
 } from "@builder.io/qwik";
 import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
 
 import styles from "./index.css?inline";
 
@@ -42,13 +43,14 @@ export default component$(() => {
      * If user have scrolled, we will not play the animation
      * If user scroll to top, we will play the animation
      */
+    gsap.registerPlugin(ScrollTrigger);
 
     const initAnimation = gsap
       .timeline()
-      .from("#scrollText", { y: -50, opacity: 0, duration: 1 });
+      .from("#scrollTextContainer", { y: -50, opacity: 0, duration: 1 });
     timelineStore.init = noSerialize(initAnimation);
     const shakeAnimation = gsap.timeline({ repeat: -1, repeatDelay: 1 }).fromTo(
-      "#scrollText",
+      "#scrollTextContainer",
       { y: 0 },
       {
         y: 5,
@@ -57,22 +59,35 @@ export default component$(() => {
         yoyo: true,
         ease: "power1.inOut",
       }
-    );
+    ).fromTo(".landscapeReminder",{
+      opacity: 0.8
+    },{
+      opacity: 1,
+      rotate: 90,
+    });
     timelineStore.shake = noSerialize(shakeAnimation);
 
-    const textScrollAnimation = gsap
-      .timeline()
-      .fromTo(
-        "#textLayer",
-        {
-          clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+    gsap.fromTo(
+      "#scrollDownButtonLayer",
+      {
+        clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)",
+      },
+      {
+        clipPath: "polygon(0 100%, 100% 100%, 100% 0.1%, 0 0.1%)",
+        scrollTrigger: {
+          trigger: "#scrollContainer",
+          start: "top top",
+          end: () =>
+            `${
+              (document.getElementById("secondScreen")?.offsetHeight || 0) * 1
+            } top`,
+          scrub: 1,
+          markers: true,
+          pin: "#scrollContainer",
+          anticipatePin: 1,
         },
-        {
-          clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0% 100%)",
-          duration: 1,
-          reversed: true,
-        }
-      ).repeat(-1);
+      }
+    );
   });
 
   /**
@@ -89,44 +104,51 @@ export default component$(() => {
    * 100 / 1.414 * 1 = 70.7
    */
   return (
-    <div class="section relative w-full min-h-screen bg-black">
-      <div class="videoContainer">
-        <video class="video" autoPlay muted loop>
-          <source src="../../../public/video/star_m.mp4" type="video/mp4" />
-          <h1>You can place a title over the video like this...</h1>
-        </video>
-      </div>
-      <div id="scrollText" class="absolute z-10 left-1/2 top-3/4">
-        <div class="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%]">
-          <div
-            id="text"
-            class="border-solid border border-white p-3 rounded-full w-48"
-          >
-            <div class="text-white font-semibold text-xl tracking-widest text-center">
-              Scroll Down
+    <div id="scrollContainer" class="section w-full min-h-screen bg-black">
+      <div id="firstScreen" class="h-screen relative ">
+        <div class="videoContainer h-full">
+          <video class="video" autoPlay muted loop>
+            <source src="../../../public/video/star_m.mp4" type="video/mp4" />
+            <h1>You can place a title over the video like this...</h1>
+          </video>
+        </div>
+        {/* Reminder of people rotate the phone */}
+        <div class="landscapeReminder text-white">
+          <i class="fa-solid fa-rotate-right text-4xl"></i>
+          <i class="fa-solid fa-mobile text-6xl"></i>
+        </div>
+        {/* Create two component different color, and use clip path to mask*/}
+        <div id="scrollTextContainer" class="scrollTextContainer">
+          <div class="animateButtonWrapper">
+            <div
+              id="scrollDownButton"
+              class="border-solid border border-white p-3 rounded-full w-48 absolute left-1/2 top-0 translate-x-[-50%]"
+            >
+              <div class="text-white font-semibold text-xl tracking-widest text-center">
+                Scroll Down
+              </div>
+            </div>
+            <div
+              id="scrollDownButtonLayer"
+              class="border-solid border border-black bg-white p-3 rounded-full w-48 absolute left-1/2 top-0 translate-x-[-50%]"
+            >
+              <div class="text-black font-semibold text-xl tracking-widest text-center">
+                Scroll Down
+              </div>
+            </div>
+
+            <div class="flex mt-2 absolute left-1/2 bottom-0 justify-center items-center">
+              <i class="fa-solid fa-arrow-down" style="color: #ffffff;"></i>
             </div>
           </div>
-          <div class="flex mt-2 justify-center items-center">
-            <i class="fa-solid fa-arrow-down" style="color: #000;"></i>
-          </div>
-        </div>
-        <div
-          id="textLayer"
-          class="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%]"
-        >
-          <div
-            id="text"
-            class="border-solid border-2 border-slate-900 p-3 rounded-full w-48 bg-white"
-          >
-            <div class="text-black font-semibold text-xl tracking-widest text-center">
-              Scroll Down
-            </div>
-          </div>
-          <div class="flex mt-2 justify-center items-center">
-            <i class="fa-solid fa-arrow-down" style="color: #ffffff;"></i>
-          </div>
         </div>
       </div>
+
+      {/*  */}
+      <div id="secondScreen" class="h-screen">
+        cc
+      </div>
+      <div class="h-screen">cc</div>
     </div>
   );
 });
