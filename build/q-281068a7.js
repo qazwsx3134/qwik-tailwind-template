@@ -1,0 +1,1 @@
+import{d as s,T as n}from"./q-9c7a2a8d.js";import{j as f}from"./q-9c7a2a8d.js";import{g as c}from"./q-9971923b.js";const a=()=>{const[o]=s(),e=new c;o.instance=n(e),console.log("scene"),console.log(performance.now())};export{f as _hW,a as s_ScZ3KjDhHIo};

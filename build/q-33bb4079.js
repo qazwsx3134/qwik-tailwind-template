@@ -1,0 +1,1 @@
+import{d as r,T as n}from"./q-9c7a2a8d.js";import{j as p}from"./q-9c7a2a8d.js";import{h as a}from"./q-9971923b.js";const c=()=>{const[o]=r(),e=new a(75,window.innerWidth/window.innerHeight,.1,1e3);o.instance=n(e),console.log("camera"),console.log(performance.now())};export{p as _hW,c as s_I1ZgZ5xqNWo};
