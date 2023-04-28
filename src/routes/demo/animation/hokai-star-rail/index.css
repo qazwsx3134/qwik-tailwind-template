@@ -1,11 +1,14 @@
 /* Desktop */
-@media screen and (max-aspect-ratio: 16/9) {
+@media screen and (min-aspect-ratio: 1/1) {
   .landscapeReminder {
     display: none;
   }
 
   .videoContainer {
     /* Desktop video aspect ratio */
+    aspect-ratio: 16 / 9;
+  }
+  .videoCanvas {
     aspect-ratio: 16 / 9;
   }
 
@@ -47,6 +50,9 @@
     /* Mobile video aspect ratio */
     aspect-ratio: 9 / 20;
   }
+  .videoCanvas {
+    aspect-ratio: 9 / 20;
+  }
 
   .scrollTextContainer {
     position: absolute;
@@ -76,13 +82,23 @@
 
 .video {
   position: absolute;
-  z-index: 2;
+  z-index: 10;
   top: 0;
   left: 0;
   margin: auto;
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: 74%;
+}
+
+.videoCanvas {
+  aspect-ratio: 16 / 9;
+  z-index: 9;
+  position: absolute;
+  top: 0;
+  left: 0;
   object-fit: cover;
   object-position: 74%;
 }

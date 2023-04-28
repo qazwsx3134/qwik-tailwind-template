@@ -2,7 +2,7 @@ import { component$, useSignal, useStylesScoped$ } from '@builder.io/qwik';
 import styles from './counter.css?inline';
 
 export default component$(() => {
-  useStylesScoped$(styles);
+useStylesScoped$(styles);
   const count = useSignal(10);
 
   return (

@@ -7,21 +7,35 @@ import {
   useVisibleTask$,
   useStylesScoped$,
   useOnWindow,
+  useSignal,
 } from "@builder.io/qwik";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-
+import imagesLoaded from "imagesloaded";
 import styles from "./index.css?inline";
+
+const frameCount = 511;
 
 export default component$(() => {
   useStylesScoped$(styles);
 
+  const canvasRef = useSignal<HTMLCanvasElement>();
+  const images = useSignal<HTMLImageElement[]>([]);
+
+  const canvasStore = useStore<{
+    context: NoSerialize<CanvasRenderingContext2D | null>;
+  }>({
+    context: undefined,
+  });
+
   const timelineStore = useStore<{
     init: NoSerialize<gsap.core.Timeline>;
     shake: NoSerialize<gsap.core.Timeline>;
+    video: NoSerialize<gsap.core.Timeline>;
   }>({
     init: undefined,
     shake: undefined,
+    video: undefined,
   });
 
   const detectScroll = $(() => {
@@ -45,49 +59,139 @@ export default component$(() => {
      */
     gsap.registerPlugin(ScrollTrigger);
 
+    const canvasObejct = {
+      video: {
+        frame: 0,
+      },
+    };
+    if (canvasRef.value && canvasRef.value.getContext("2d")) {
+      canvasRef.value.width = 1920;
+      canvasRef.value.height = 1080;
+      canvasStore.context = noSerialize(
+        canvasRef.value.getContext("2d") || undefined
+      );
+    }
+
+    const render = () => {
+      console.log(canvasObejct);
+      const context = canvasStore.context;
+
+      context?.drawImage(
+        images.value[canvasObejct.video.frame],
+        0,
+        0,
+        canvasRef.value?.width || 1920,
+        canvasRef.value?.height || 1080
+      );
+    };
+
+    for (let index = 1; index < frameCount; index++) {
+      const img = new Image();
+      const imageIndex = `${index}`.padStart(3, "0");
+      img.src = `../../../video/sequence/star/login_${imageIndex}.webp`;
+      images.value.push(img);
+    }
+
+    images.value[images.value.length - 1].onload = () => {
+      render();
+      console.log("loaded");
+    };
+
     const initAnimation = gsap
       .timeline()
       .from("#scrollTextContainer", { y: -50, opacity: 0, duration: 1 });
     timelineStore.init = noSerialize(initAnimation);
-    const shakeAnimation = gsap.timeline({ repeat: -1, repeatDelay: 1 }).fromTo(
-      "#scrollTextContainer",
-      { y: 0 },
-      {
-        y: 5,
-        duration: 0.05,
-        repeat: 5,
-        yoyo: true,
-        ease: "power1.inOut",
-      }
-    ).fromTo(".landscapeReminder",{
-      opacity: 0.8
-    },{
-      opacity: 1,
-      rotate: 90,
-    });
+    const shakeAnimation = gsap
+      .timeline({ repeat: -1, repeatDelay: 1 })
+      .fromTo(
+        "#scrollTextContainer",
+        { y: 0 },
+        {
+          y: 5,
+          duration: 0.05,
+          repeat: 5,
+          yoyo: true,
+          ease: "power1.inOut",
+        }
+      )
+      .fromTo(
+        ".landscapeReminder",
+        {
+          opacity: 0.8,
+        },
+        {
+          opacity: 1,
+          rotate: 90,
+        }
+      );
     timelineStore.shake = noSerialize(shakeAnimation);
 
-    gsap.fromTo(
-      "#scrollDownButtonLayer",
-      {
-        clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)",
-      },
-      {
-        clipPath: "polygon(0 100%, 100% 100%, 100% 0.1%, 0 0.1%)",
+    const videoAnimation = gsap
+      .timeline()
+      .fromTo(
+        "#scrollDownButtonLayer",
+        {
+          clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)",
+        },
+        {
+          clipPath: "polygon(0 100%, 100% 100%, 100% 0.1%, 0 0.1%)",
+          scrollTrigger: {
+            trigger: "#scrollContainer",
+            start: "top top",
+            end: () =>
+              `${
+                (document.getElementById("firstScreen")?.offsetHeight || 0) * 1
+              } top`,
+            scrub: 1,
+            pin: "#scrollContainer",
+          },
+        }
+      )
+      .to(".video", {
+        opacity: 0,
         scrollTrigger: {
           trigger: "#scrollContainer",
-          start: "top top",
-          end: () =>
-            `${
-              (document.getElementById("secondScreen")?.offsetHeight || 0) * 1
-            } top`,
+          start: () => `1px top`,
+          end: () => `10px top`,
           scrub: 1,
-          markers: true,
           pin: "#scrollContainer",
-          anticipatePin: 1,
+          onLeave: () => {
+            console.log("leave");
+          },
+          onEnterBack: () => {
+            console.log("enter back");
+          },
         },
-      }
-    );
+      });
+    timelineStore.video = noSerialize(videoAnimation);
+
+    gsap.to(".animateButtonWrapper", {
+      visibility: "hidden",
+      scrollTrigger: {
+        trigger: "#scrollContainer",
+        start: () => `1x top`,
+        end: () => `1px top`,
+        scrub: 0.5,
+        pin: "#scrollContainer",
+      },
+    });
+
+    gsap.to(canvasObejct.video, {
+      frame: frameCount - 1,
+      snap: "frame",
+      ease: "none",
+
+      scrollTrigger: {
+        scrub: 0.5,
+        start: () => `5px top`,
+        end: () => `+=${frameCount * 1}`,
+        pin: "#scrollContainer",
+        pinSpacing: true,
+      },
+      onUpdate: render,
+    });
+
+    // const loginAnimation = gsap.timeline().to()
   });
 
   /**
@@ -105,13 +209,19 @@ export default component$(() => {
    */
   return (
     <div id="scrollContainer" class="section w-full min-h-screen bg-black">
-      <div id="firstScreen" class="h-screen relative ">
-        <div class="videoContainer h-full">
-          <video class="video" autoPlay muted loop>
-            <source src="../../../public/video/star_m.mp4" type="video/mp4" />
+      <div id="firstScreen" class="h-screen relative w-full">
+        <div id="videoContainer" class="videoContainer h-full">
+          <video class="video hidden" autoPlay muted loop playsInline>
+            <source src="../../../video/star_m.mp4" type="video/mp4" />
             <h1>You can place a title over the video like this...</h1>
           </video>
+          <canvas
+            ref={canvasRef}
+            id="videoCanvas"
+            class="videoCanvas h-full w-full"
+          ></canvas>
         </div>
+
         {/* Reminder of people rotate the phone */}
         <div class="landscapeReminder text-white">
           <i class="fa-solid fa-rotate-right text-4xl"></i>
@@ -143,12 +253,7 @@ export default component$(() => {
           </div>
         </div>
       </div>
-
-      {/*  */}
-      <div id="secondScreen" class="h-screen">
-        cc
-      </div>
-      <div class="h-screen">cc</div>
+      <div class="bg-black h-1"></div>
     </div>
   );
 });
